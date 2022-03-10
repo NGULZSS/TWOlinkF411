@@ -16,6 +16,7 @@ float ang;                          //调用get_state时 存放返回的角度�
 int p_set;
 extern double servo_rpara[10];
 bool RunFlag=false;
+float Aimq[2]={200.0,0};
 TLKinematic TL;
 #pragma region 线程创建
 TaskHandle_t StartTask_Handler;
@@ -127,12 +128,12 @@ void ShowThread(void *pvParameters)
 //控制线程
 void ConturlThread(void *pvParameters)
 {
-  float Aimq[2]={200.0,0};
+  
 	while(1)
 	{
      if(RunFlag==true)
      {
-       TL.MoveJ(Aimq,250,500,mservo);
+       TL.MoveJ(Aimq,130,400,mservo);
        //TL.MoveL(Aimq,180,400);
      }
      
@@ -166,7 +167,9 @@ void ClickLeft()
 {
   static int as=10;
   as+=10;
-    mservo.set_angle(1,20+as,1); 
+  Aimq[0]+=20;
+  Aimq[1]+=40;
+   // mservo.set_angle(1,20+as,1); 
 }
 void ClickCenter()
 {

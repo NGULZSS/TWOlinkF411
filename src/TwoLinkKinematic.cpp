@@ -143,59 +143,62 @@ void TLKinematic::TLJacobi(float *q, float *v, float J[2][2])
 //采用梯形轨迹规划的方式来进行运动
 bool TLKinematic::MoveJ(float Aimq[2], float speed, float acc, m_servo ms)
 {
-    float Nowq[2] = {ms.Para.cur_angle, ms.Para.cur_angle + 3.8};
+    //还需要对其加速度 速度进行限制
     static float T = 0.0f;   //控制时间
     static float tc = 0.0f;  //加速变成匀速时间
     static float tf = 0.0f;  //总运动时间
     static float tm = 0.0f;  //匀速运动绝对时间
-    static float th = 0.0f; //匀速变减速时间
+    static float th = 0.0f;  //匀速变减速时间
     static float a[2] = {0}; //关节加速度
     static float v[2] = {0}; //关节速度
-    float xc = 0;           //加速段位移
-    float xm=0;           //中间段位移
+    float xc = 0;            //加速段位移
+    float xm = 0;            //中间段位移
     float maxacc = 0;
-    std::array<float, 2> Jerror{0};
-    float fabJerror[2]={0};
-    std::array<float, 2> accall{0};
-    std::array<float, 2> speedall{0};
+    static std::array<float, 2> Jerror{0};
+    static float fabJerror[2] = {0};
+    static std::array<float, 2> accall{0};
+    static std::array<float, 2> speedall{0};
     float jointmove[2] = {0};
     float jointmoveSpeed[2] = {0};
-
-
+    static float Nowq[2]={0};
     std::array<float, 2> outPS{0};
     static bool runi = false;
     static float LastAimq[2] = {0};
     static float MaxMoveJoint = 0;
     static int OtherMoveJoint = 0;
-    bool Moverunflag = false;
+    static bool Moverunflag = false;
     static float StartQ[2] = {0};
     if (runi == false || LastAimq[0] != Aimq[0] || LastAimq[1] != Aimq[1])
     {
+        Nowq[0] = ms.Para.cur_angle;
+        Nowq[1] = ms.Para.cur_angle+3.58;
         for (int i = 0; i < 2; i++)
         {
             Jerror[i] = Aimq[i] - Nowq[i];
-            fabJerror[i]=abs(Jerror[i]);
+            fabJerror[i] = abs(Jerror[i]);
         }
-        fabJerror[0]>fabJerror[1]?MaxMoveJoint=fabJerror[0]:MaxMoveJoint=fabJerror[1];
+        fabJerror[0] > fabJerror[1] ? MaxMoveJoint = fabJerror[0] : MaxMoveJoint = fabJerror[1];
         //运动时间计算
         tc = speed / acc; //加速段时间
-        xc = 0.5* acc * pow(tc,2);
+        xc = 0.5 * acc * pow(tc, 2);
         xm = MaxMoveJoint - 2 * xc;
         tm = xm / speed;
-        th=tc+tm;
-        tf=th+tc;
-       //计算其他轴的运动速度和加速度
+        th = tc + tm;
+        tf = th + tc;
+        Moverunflag = true;
+        //计算其他轴的运动速度和加速度
         for (int i = 0; i < 2; i++)
         {
-            accall[i] = Jerror[i]/(tc+tm);
-            speedall[i]=accall[i]/tc;
+            speedall[i] = Jerror[i] / (tc + tm);
+            accall[i] = speedall[i] / tc;
         }
     }
     else
     {
         if (LastAimq[0] == Aimq[0] && LastAimq[1] == Aimq[1])
         {
-            T = T + 0.015;
+            if(Moverunflag==true)
+            {T = T + 0.015;}
         }
         else
         {
@@ -204,40 +207,49 @@ bool TLKinematic::MoveJ(float Aimq[2], float speed, float acc, m_servo ms)
     }
     runi = true;
     //找到需要运动最大的规划角度    以此为基准    保证每个关节同时运动到位置
-    if (T <= tc)
+    if (Moverunflag == true)
     {
-        for (int i=0;i<2;i++)
+        if (T <= tc)
         {
-            jointmove[i]=Nowq[2]+0.5*accall[i]*pow(T,2);
+            for (int i = 0; i < 2; i++)
+            {
+                jointmove[i] = Nowq[i] + 0.5 * accall[i] * pow(T, 2);
+            }
         }
-    }
-    else if (T > tc && T <= (tf - tc))
-    {
-         for (int i=0;i<2;i++)
+        else if (T > tc && T <= (th))
         {
-            jointmove[i]= Nowq[2]+0.5*accall[i]*pow(tc,2)+speedall[i]*(T-tc); 
+            for (int i = 0; i < 2; i++)
+            {
+                jointmove[i] = Nowq[i] + 0.5 * accall[i] * pow(tc, 2) + speedall[i] * (T - tc);
+            }
         }
-    }
-    else if (T > (tf - tc) && T <= tf)
-    {
-         for (int i=0;i<2;i++)
+        else if (T > (th) && T <= tf)
         {
-            jointmove[i]= Nowq[2]+0.5*accall[i]*pow(tc,2)+speedall[i]*(tf-tc)+
-            speedall[i]*(T-th)+0.5*(-accall[i])*pow((T-th),2); 
+            for (int i = 0; i < 2; i++)
+            {
+                jointmove[i] = Nowq[i] + 0.5 * accall[i] * pow(tc, 2) + speedall[i] * (tm) +
+                               speedall[i] * (T - th) + 0.5 * (-accall[i]) * pow((T - th), 2);
+            }
         }
-    }
-    else
-    {
-         for (int i=0;i<2;i++)
+        else
         {
-            jointmove[i]= Aimq[i];
+            for (int i = 0; i < 2; i++)
+            {
+                jointmove[i] = Aimq[i]; 
+                ms.set_angle(1, jointmove[0], 1);  
+                Moverunflag = false;
+            }
         }
+        
+        ms.set_angle(1, jointmove[0], 1);
     }
-    if (Moverunflag == false)
+    // if (Moverunflag == false)
+    // {
+    // }
+    for (int i = 0; i < 2; i++)
     {
-       
+        LastAimq[i] = Aimq[i];
     }
-
     return Moverunflag;
 }
 
