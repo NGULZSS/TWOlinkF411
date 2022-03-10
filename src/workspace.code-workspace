@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"name": "TWOlinkF411",
+			"path": ".."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"cmath": "cpp",
+			"array": "cpp"
+		}
+	}
+}
