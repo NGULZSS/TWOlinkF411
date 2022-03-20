@@ -5,6 +5,7 @@
 #include "math.h"
 #include "m_servo.h"
 #include "mathAL.h"
+
 class TLKinematic: public m_servo
 {
    public:
@@ -18,6 +19,7 @@ class TLKinematic: public m_servo
      bool MoveL(float Aimpose[2],float speed,float acc);
      bool MoveC(float Aimq[2],float speed,float acc);
      bool Bezier();//贝塞尔曲线运动
+     bool LineACircle(float Pose[][6],float speed,float acc );//直线圆弧过度 输入任意多个坐标点
    private:
    const float L1=90;
    const float L2=90;
