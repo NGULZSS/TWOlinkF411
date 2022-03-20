@@ -333,3 +333,89 @@ bool TLKinematic::MoveL(float Aimpose[2], float speed, float acc)
 bool TLKinematic::MoveC(float Aimq[2], float speed, float acc)
 {
 }
+
+bool TLKinematic::LineACircle(float Pose[][6],float speed,float acc )//直线圆弧过度 输入任意多个坐标点
+{
+// r=0.03;
+// v=0.4;
+// a=1;
+// p=[p1;p2;p3;p4;p5;p6];
+
+// nx=size(p(:,2));
+// n=nx(1);%轨迹点个数
+// %圆弧段插值计算
+// for i=1:n-2
+// [Pt1(i,:), Pt2(i,:), d1(i), d2(i), C(i,:), theta(i)] = PathSegmentTrans(p(i,1:3), p(i+1,1:3), p(i+2,1:3), r);
+// end
+// %%轨迹规划加插值
+// %判断是否可以达到最大速度
+// diss=DistanceP2P(p(1,1:3),Pt1(1,:));
+// dise=DistanceP2P(p(n,1:3),Pt2(n-2,:));
+// vmax1=sqrt(2*a*diss);
+// vmax2=sqrt(2*a*dise);
+// vmax=min(vmax1,vmax2);
+// if vmax<v
+//     vn=vmax;
+// else
+//     vn=v;
+// end
+// %%轨迹规划加插值
+// k=100;%一秒插值步数
+// ta=vn/a;
+// xa=0.5*a*ta^2;
+// Na=ceil(k*ta);
+// %计算总位移
+// sc=0;
+// sl=0;
+// for i=2:2*n-4
+//     if mod(i,2)==1
+//         sm(i)=DistanceP2P(Pt2((i-1)/2,:),Pt1(((i-1)/2)+1,:));
+//     else
+//         sm(i)=r*theta(i/2);
+//     end
+// end
+// sm(1)=DistanceP2P(Pt1(1,:),p(1,1:3));
+// sm(2*n-3)=DistanceP2P(Pt2(n-2,:),p(n,1:3));
+// S=sum(sm);
+// %计算各段时间
+// ta=vn/a;
+// ts=ta;
+// for i=2:2*n-4
+//     tms(i)=sm(i)/vn;
+// end
+// tms(1)= ta+(sm(1)-0.5*a*ta^2)/vn;
+// tms(2*n-3)=v/a+(sm(2*n-3)-0.5*a*ta^2)/vn;
+
+// altms=sum(tms)
+// Ntm=ceil(tms*100);
+// N=ceil(k*altms);
+// ANtm=sum(Ntm);
+// lambda = Normalization(S, vn, a, ANtm);
+// (lambda(ANtm-Ntm(2*n-3):ANtm)-lambda(ANtm-Ntm(2*n-3)))/(1-lambda(ANtm-Ntm(2*n-3)))
+// ps=LinearInterpolation(p(1,1:3), Pt1(1,:),lambda(1:Ntm(1))/lambda(Ntm(1)));
+// pe=LinearInterpolation(Pt2(n-2,:), p(n,1:3),(lambda(ANtm-Ntm(2*n-3)+1:ANtm)-lambda(ANtm-1-Ntm(2*n-3)))/(1-lambda(ANtm-Ntm(2*n-3))));
+//  Ntmtt=0;
+//  Ntmlast=1;
+// for i=1:(2*n-5)
+//     Ntmtt=Ntmtt+Ntm(i+1);
+//     if mod(i,2)==1
+//         pc(Ntmlast:Ntmtt,:)=CircularInterpolation(C((i+1)/2,:),	Pt1((i+1)/2,:), Pt2((i+1)/2,:), ......
+//         (lambda(Ntmlast+Ntm(1):Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1)))/(lambda(Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1))),1)'; 
+//     else
+//         pc(Ntmlast:Ntmtt,:)=LinearInterpolation(    Pt2(i/2,:), Pt1(i/2+1,:),..... 
+//         (lambda(Ntmlast+Ntm(1):Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1)))/(lambda(Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1))));
+//     end
+//     Ntmlast=Ntmtt;
+// end
+
+// % pcss=LinearInterpolation(    Pt2(i/2,:), Pt1(i/2+1,:),..... 
+// %         (lambda(Ntmlast+Ntm(1):Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1)))/(lambda(Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1))));
+// %     
+// %     
+// %     
+// % pc(Ntmlast:Ntmtt,:)=CircularInterpolation(C((i+1)/2,:),	Pt1((i+1)/2,:), Pt2((i+1)/2,:), ......
+// %         (lambda(Ntmlast+Ntm(1):Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1)))/(lambda(Ntmtt+Ntm(1))-lambda(Ntmlast+Ntm(1))),1)'; 
+
+// pp=[ps;pc;pe];
+
+}
